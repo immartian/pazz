@@ -18,9 +18,17 @@ fi
 
 # confirm it's for private use or team
 kbuser=`keybase whoami`
-
+teamname="quantalucia"
+base_path="/keybase/private/${kbuser}/vault/"	#if it's individual
+base_path="/keybase/team/${teamname}/vault/"	#if it's for a team
 # check if the db file exists already
-dbfile='pass.db'
+dbfile="${base_path}pass.db"
+if [ -f "$dbfile" ]; then
+    echo "$dbfile exists."
+else
+ 	`mkdir -p $(dirname $dbfile)`
+	`sqlite3 $dbfile "create table n (id INTEGER PRIMARY KEY,u TEXT,p TEXT,s TEXT);"`
+fi
 
 read -p 'Username: ' uservar
 read -p 'Password: ' passwordvar
@@ -37,4 +45,4 @@ sqlcmd="select * from databases"
 
 result=`sqlite3 $dbfile "SELECT p FROM n WHERE u= '$uservar' LIMIT 1" `
 decrypted=`keybase decrypt -m "$result"`
-echo "The password:%s has been save",$decrypted
+echo "The password:${decrypted} has been save"
