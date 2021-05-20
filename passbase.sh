@@ -16,51 +16,55 @@ if ! type sqlite3 > /dev/null;  then
 #	echo "...db works"
 fi
 
-
-# 2.select it's for private use or team
+# default as individual, the current user from keybase runtime
 kbuser=`keybase whoami`
 PS3="Enter a purpose: "
+base_path="/keybase/private/${kbuser}/vault/"	#if it's individual
 
-select purpose in private team
-do
-	case $purpose in
-		private)
-			base_path="/keybase/private/${kbuser}/vault/"	#if it's individual
-			break
-			;;
-		team)
-			teamname="quantalucia"
-			base_path="/keybase/team/${teamname}/vault/"	#if it's for a team
-			break
-			;;
-		*)
-			exit
-			;;
-	esac
-done
+# Or, check if there's arguments from command line, use it as team name if so
+if [ ! -z "$1" ]; then
+	teamname=$1
+	base_path="/keybase/team/${teamname}/vault/"	#if it's for a team
+fi
 
-# 3. check if the db file exists already
-dbfile="${base_path}pass.db"
+# check if the db file exists already
+dbfile="${base_path}vault.db"
 if [ -f "$dbfile" ]; then
     echo "==============================="		#"Using $dbfile ..."
 else
+	echo "==== new password DB in creation ===="		#"Using $dbfile ..."
  	`mkdir -p $(dirname $dbfile)`
 	`sqlite3 $dbfile "create table n (id INTEGER PRIMARY KEY,u TEXT,p TEXT,s TEXT);"`
 fi
 
-read -p 'Username: ' uservar
-read -p 'Password: ' passwordvar
-read -p 'Service(e.g. Google) ' servicevar
-
-encrypted=`keybase encrypt $kbuser -m $passwordvar`
-#echo "$encrypted"
-
+# provide a menu for user to choose (create, search... )
 dbcmd="sqlite3 database.db"
 sqlcmd="select * from databases"
-
 #`sqlite3 $dbfile "UPDATE n SET p = '$encrypted' WHERE u= 'im@quantalucia.com' "`
-`sqlite3 $dbfile "INSERT INTO n (u,p,s) values ('$uservar', '$encrypted', '$servicevar')"`
-
-result=`sqlite3 $dbfile "SELECT p FROM n WHERE u= '$uservar' LIMIT 1" `
-decrypted=`keybase decrypt -m "$result"`
-echo "The password:('${decrypted}') has been saved after encryption"
+while :
+do
+	select purpose in search create exit
+	do
+		case $purpose in
+			search)
+				# search in fuzzy way through user names and services
+				read -p 'What to search(user name, service, etc.): ' searchvar
+				result=`sqlite3 $dbfile "SELECT u,s FROM n WHERE u LIKE '%$searchvar%' OR s LIKE '%$searchvar%'" `
+				echo $result
+				break
+				;;
+			create)
+				# 5.1 Create an new entry
+				read -p 'Username: ' uservar
+				read -p 'Password: ' passwordvar
+				read -p 'Service(e.g. Google) ' servicevar
+				encrypted=`keybase encrypt $kbuser -m $passwordvar`
+				`sqlite3 $dbfile "INSERT INTO n (u,p,s) values ('$uservar', '$encrypted', '$servicevar')"`
+				break
+				;;
+			*)
+			exit
+			;;
+		esac
+	done
+done
