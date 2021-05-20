@@ -19,10 +19,13 @@ if [ -z "$kbuser" ]; then
 	kbuser=`keybase whoami`
 fi
 
+type="Private"
+teamname=$kbuser
 base_path="/keybase/private/${kbuser}/vault/"	#if it's individual
 
 # Or, check if there's arguments from command line, use it as team name if so
 if [ ! -z "$1" ]; then
+	type="Team"
 	teamname=$1
 	base_path="/keybase/team/${teamname}/vault/"	#if it's for a team
 fi
@@ -34,7 +37,7 @@ if [ -f "$dbfile" ]; then
 else
 	echo "(new DB file: $dbfile created)"		#"Using $dbfile ..."
  	`mkdir -p $(dirname $dbfile)`
-	`sqlite3 $dbfile "create table n (id INTEGER PRIMARY KEY,u TEXT,p TEXT,s TEXT);"`
+	`sqlite3 $dbfile "create table n (id INTEGER PRIMARY KEY,u TEXT,p TEXT,s TEXT, t TEXT);"`
 fi
 
 # provide a menu for user to choose (create, search... )
@@ -43,7 +46,7 @@ sqlcmd="select * from databases"
 #`sqlite3 $dbfile "UPDATE n SET p = '$encrypted' WHERE u= 'im@quantalucia.com' "`
 while :
 do
-	echo -e "\n===== What to do ? ======"
+	echo -e "\n===== What to do ? ($type:$teamname)======"
 	PS3="Enter a purpose(1-3): "
 	select purpose in search create exit
 	do
@@ -66,9 +69,11 @@ do
 							result=`sqlite3 $dbfile "SELECT p FROM n WHERE u='$uservar' AND s='$servicevar'"`
 							echo -n "... decoding password for ($item)..."
 							decrypted=`keybase decrypt -m "$result"`
+							#`keybase decrypt -m "$result" -o a.txt`
 							echo -n "The password to $item: "
-							echo -e "\e[38;5;0;48;5;255m$decrypted\e[0m"
-							#echo -e "\e[38;5;0;48;5;255mText\e[0m"
+							# there's a problem with this string "@#$^[[1;2S!EASDF" which is not possible to display
+							echo -e "\e[38;5;0;48;5;255m${decrypted}\e[0m"
+							#printf "%s\n" "$decrypted"
 							break 2
 				    fi
 				  done
@@ -81,13 +86,20 @@ do
 				read -p 'Service(e.g. Google) ' servicevar
 				read -p 'Password/Secret: ' passwordvar
 				echo "Wait a moment for encryption... "
-				encrypted=`keybase encrypt $kbuser -m $passwordvar`
-				`sqlite3 $dbfile "INSERT INTO n (u,p,s) values ('$uservar', '$encrypted', '$servicevar')"`
+				if [ $teamname = $kbuser ]; then
+					scope="$kbuser"						#decryptable only by myself
+				else
+					scope="--team $teamname"	#decryptable to the whole team
+				fi
+				encrypted=`keybase encrypt $scope -m $passwordvar`
+				`sqlite3 $dbfile "INSERT INTO n (u,p,s,t) values ('$uservar', '$encrypted', '$servicevar', datetime('now'))"`
+				echo "Password to $uservar|$servicevar saved safely."
 				break
 				;;
 			*)
-			exit
-			;;
+				clear
+				exit
+				;;
 		esac
 	done
 done
