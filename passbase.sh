@@ -96,7 +96,7 @@ do
 				echo "Password to $uservar|$servicevar saved safely."
 				break
 				;;
-			*)
+			exit)
 				clear
 				exit
 				;;
