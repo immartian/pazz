@@ -54,19 +54,17 @@ do
 			search)
 				# search in fuzzy way through user names and services
 				read -p 'What to search(user name, service, etc.): ' searchvar
-				result=`sqlite3 $dbfile "SELECT u,s FROM n WHERE u LIKE '%$searchvar%' OR s LIKE '%$searchvar%'"`
-				#for line in $result; do
-   			#		echo "> $line"
-				#done;
-				choices=( $result )
+
+				IFS=$'\n'
+				choices=( `sqlite3 $dbfile "SELECT u,s FROM n WHERE u LIKE '%$searchvar%' OR s LIKE '%$searchvar%'"` )
 				PS3="Which entry you want to view password with? "
 				select answer in "${choices[@]}"; do
 				  for item in "${choices[@]}"; do
 				    if [[ $item == $answer ]]; then
-							arrIN=(${item//|/ })
-							uservar=${arrIN[0]}
-							servicevar=${arrIN[1]}
-							result=`sqlite3 $dbfile "SELECT p FROM n WHERE u='$uservar' AND s='$servicevar'"`
+							IFS='|' read -r -a array <<< "$item"
+							uservar="${array[0]}"
+							servicevar="${array[1]}"
+							result=`sqlite3 $dbfile "SELECT p FROM n WHERE u='$uservar' AND s='$servicevar';"`
 							echo -n "... decoding password for ($item)..."
 							decrypted=`keybase decrypt -m "$result"`
 							#`keybase decrypt -m "$result" -o a.txt`
