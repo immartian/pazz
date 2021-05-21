@@ -2,8 +2,8 @@
 
 Passbase utilizes the inherent cryptographical methods of Keybase to store and access individual or team crendentials to be used in different circumstances. It's simple, lightweight and secure by nature.  
 
-## architecture & user experience of keybase-based password manager for individual and/or team
-
+## architecture & user experience
+```
 (1) Create/Search/Update  +----------------+      (2) Store/Retrieve
            +------------->| SQLite3        |<------------+
            |              +----------------+             |
@@ -13,11 +13,11 @@ Passbase utilizes the inherent cryptographical methods of Keybase to store and a
    | Passbase       |<------(Password)-------🔒---|  Keybase(KBFS) |
    +----------------+                             +----------------+
                         (3) Decrypt/Encrypt
-
+```
 ## Usage
 
 ```
-$ passbase [search phrase]
+$ passbase [team name]
 
 ```
 
