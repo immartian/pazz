@@ -25,9 +25,9 @@ $ passbase [team name]
 - [x] Running on Linux(several distros), Mac and Windows via command line (Keybase runtime needed)
 - [x] automatically check keybase/sqlite3 installation status and run them up if necessary
 - [x] Use sqlite3 as DB to manage usernames and servcies entries
-- [ ] Interactive command line to create, search or update a password
-- [ ] Input or generate a password upon user's choice
-- [ ] Search in command line about one or multiple password/other secrets using fuzzy criterias
+- [x] Interactive command line to create, search or update a password
+- [x] Input or generate a password upon user's choice
+- [x] Search in command line about one or multiple password/other secrets using fuzzy criterias
 - [ ] Change a password
 - [ ] Use keybase to decrypt the password artifact if user want to view it,can be copied to clipboard while viewing it
 - [ ] Save password artifacts with keybase encryption saltpack, directly in sqlite ~~(too big?)~~
