@@ -1,6 +1,6 @@
-# Passbase: the ultimate free & open source password manager for both team and individual
+# Pazz: the ultimate free & open source password manager for both team and individual
 
-Passbase utilizes the inherent cryptographical methods of Keybase to store and access individual or team crendentials to be used in different circumstances. It's simple, lightweight and secure by nature.  
+Pazz(previously called `passbase`) utilizes the inherent cryptographical methods of Keybase to store and access individual or team crendentials to be used in different circumstances. It's simple, lightweight and secure by nature.  
 
 ## architecture & user experience
 ```
@@ -10,7 +10,7 @@ Passbase utilizes the inherent cryptographical methods of Keybase to store and a
            |                                             |
            V                                             V
    +----------------+                             +----------------+
-   | Passbase       |<------(Password)-------🔒---|  Keybase(KBFS) |
+   | Pazz           |<------(Password)-------🔒---|  Keybase(KBFS) |
    +----------------+                             +----------------+
                         (3) Decrypt/Encrypt
 ```
