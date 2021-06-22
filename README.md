@@ -17,7 +17,7 @@ Pazz(previously called `passbase`) utilizes the inherent cryptographical methods
 ## Usage
 
 ```
-$ passbase [team name]
+$ pazz [team name]
 
 ```
 
